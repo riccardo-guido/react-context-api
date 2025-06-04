@@ -1,15 +1,10 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { usePosts } from "../contexts/PostContext";
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState([]);
+  const { posts, loading } = usePosts();
 
-  useEffect(() => {
-    axios.get("http://localhost:3000/posts").then((res) => {
-      setPosts(res.data.data);
-    });
-  }, []);
+  if (loading) return <p>Caricamento...</p>;
 
   return (
     <div>

@@ -1,17 +1,34 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
 
-const PostContext = createContext();
+const PostsContext = createContext();
 
-function PostsProvider({ children }) {
-  const [post, setPost] = useState();
-  const postData = { post, setPost };
+export function PostsProvider({ children }) {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/posts")
+      .then((res) => {
+        setPosts(res.data.data);
+        setLoading(false);
+        console.log("Post ricevuti dal context:", res.data.data);
+      })
+      .catch((err) => {
+        console.error("Errore nel recupero dei post:", err);
+        setLoading(false);
+      });
+  }, []);
+
   return (
-    <PostContext.Provider value={postData}>{children}</PostContext.Provider>
+    <PostsContext.Provider value={{ posts, loading }}>
+      {children}
+    </PostsContext.Provider>
   );
 }
 
-function usePosts() {
-  return useContext(PostContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export function usePosts() {
+  return useContext(PostsContext);
 }
-
-export { PostsProvider, usePosts };
